@@ -1,0 +1,65 @@
+---
+title: "p8105_hw5_jm5509"
+author: "Echo"
+date: "2022-11-05"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+```
+
+## Problem 2
+
+Then I created a city_state variable.
+```{r}
+homicides_df <- read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
+
+homicides_df <-  homicides_df %>% 
+  mutate(city_state = str_c(city, state, sep = ', ')) 
+```
+
+I summarize within cities to obtain the total number of homicides.
+```{r}
+homicides_df %>% 
+  group_by(city_state) %>% 
+  summarize(n_total = n()) %>% 
+  knitr::kable()
+```
+
+
+Then I summarize within cities, but this time to obtain **the number of unsolved homicides** (those for which the disposition is “Closed without arrest” or “Open/No arrest”).
+```{r}
+homicides_df %>% 
+  filter(disposition == 'Closed without arrest' | 
+           disposition == 'Open/No arrest') %>% 
+  group_by(city_state) %>% 
+  summarize(n_unsolved = n())
+```
+
+```{r}
+baltimore_df <- homicides_df %>% 
+  filter(city_state == 'Baltimore, MD')
+
+(baltimore_total <- baltimore_df %>% nrow())
+(baltimore_unsolved <- baltimore_df %>% 
+  filter(disposition == 'Closed without arrest' | 
+           disposition == 'Open/No arrest') %>% 
+  nrow())
+
+baltimore_test <- prop.test(baltimore_unsolved, baltimore_total)
+
+baltimore_test %>% broom::tidy() %>% 
+  select(estimate, conf.low, conf.high) %>% 
+  knitr::kable(digits = 3)
+
+```
