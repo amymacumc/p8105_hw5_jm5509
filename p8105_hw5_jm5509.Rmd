@@ -17,15 +17,21 @@ options(
 )
 ```
 
+## Problem 1
+
 ## Problem 2
+
+First read the data:
+```{r}
+homicides_df <- read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
+```
 
 Then I created a city_state variable.
 ```{r}
-homicides_df <- read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
-
 homicides_df <-  homicides_df %>% 
   mutate(city_state = str_c(city, state, sep = ', ')) 
 ```
+This data gathered homicides information in 50 large U.S. cities. It has `r nrow(homicides_df)`observations and `r ncol(homicides_df)` variables. the key variables include `city`, `state`, `disposition`, `reported_date` etc.
 
 I summarize within cities to obtain the total number of homicides.
 ```{r}
@@ -34,7 +40,6 @@ homicides_total <-
   group_by(city_state) %>% 
   summarize(n_total = n())
 ```
-
 
 Then I summarize within cities, but this time to obtain **the number of unsolved homicides** (those for which the disposition is “Closed without arrest” or “Open/No arrest”).
 ```{r}
@@ -54,6 +59,7 @@ homicides_table %>% knitr::kable()
 ```
 
 For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe.
+
 ```{r}
 baltimore_df <- homicides_df %>% 
   filter(city_state == 'Baltimore, MD')
@@ -73,6 +79,7 @@ baltimore_test %>% broom::tidy() %>%
 ```
 
 Then I run `prop.test` for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of `purrr::map`, `purrr::map2`, list columns and unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city.
+
 ```{r}
 homicides_stats <- 
   homicides_table %>% 
@@ -168,6 +175,7 @@ sim_results_df_2 %>%
   labs(x = 'True Mean', y = 'Average Estimated Mean',
     title = 'Plot of Average Estimated Mean and True Mean')
 ```
+
 This plot looks like a real single line, so I think the sample average of estimated mean across tests is approximately equal to the true value of mean.
 
 Then I make  a second plot :the average estimate of mean only in samples for which the null was rejected on the y axis and the true value of mean on the x axis.
